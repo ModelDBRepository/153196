@@ -3,7 +3,31 @@ forall delete_section()
     Layer V Cortical Pyramidal Cell
 
     Based on Yu Yuguo ( May 1, 2008)
+
+20150512 NTC
+Updated for use with 
+ca.mod
+kca.mod
+km.mod
+kv.mod
+na12.mod
+na16.mod
+na.mod
+that have been revised to eliminate a spurious 
+temperature-dependence of effective channel density.
+This involved multiplying the following parameters
+gbar_ca
+gbar_kca
+gbar_km
+gbar_kv
+gbar_na12
+gbar_na16
+gbar_na
+by a factor of 3.2094.
+See the header in na.mod for details.
 ----------------------------------------------------- */
+
+TADJ = 3.2094 // see comment above
 
 
 objref somatodendritic, dendritic
@@ -37,6 +61,7 @@ objref somatodendritic, dendritic
 /* Active channels */
   // Nav
   Ena = 60
+/*
   gna12_soma = 80
   gna12_dend = 80
   gna12_ais_max = 3200   // Nav1.2
@@ -44,6 +69,14 @@ objref somatodendritic, dendritic
   gna16_nakeaxon= 300
   gna12_myelin=20       // Nav1.2 at myelins
   gna16_node = 3200     // Nav1.6 at node
+*/
+  gna12_soma = 80*TADJ
+  gna12_dend = 80*TADJ
+  gna12_ais_max = 3200*TADJ   // Nav1.2
+  gna16_ais_max = 3200*TADJ   // Nav1.6
+  gna16_nakeaxon= 300*TADJ
+  gna12_myelin=20*TADJ       // Nav1.2 at myelins
+  gna16_node = 3200*TADJ     // Nav1.6 at node
 
   vhalf_na12 = -30
   vhalf_na16 = -43
@@ -51,21 +84,28 @@ objref somatodendritic, dendritic
 
   // Kv
   Ek = -90
-  gkv_soma = 20
-  gkv_dend = 10
-  gkv_axon = 1000
+//  gkv_soma = 20
+//  gkv_dend = 10
+//  gkv_axon = 1000
+  gkv_soma = 20*TADJ
+  gkv_dend = 10*TADJ
+  gkv_axon = 1000*TADJ
 
   // Km
-  gkm = .3
+//  gkm = 0.3
+  gkm = 0.3*TADJ
+  gkm_soma = gkm
   gkm_soma = gkm
 
   // Kca
-  gkca = 3
+//  gkca = 3
+  gkca = 3*TADJ
   gkca_soma = gkca
 
   // Ca
   Eca=140
-  gca = .3
+//  gca = 0.3
+  gca = 0.3*TADJ
   gca_soma = gca
 
 
@@ -178,6 +218,13 @@ proc  install_channels() {
 
   /* Somatodendritic */
     forsec somatodendritic {
+
+    /********* NOTE *********/
+    // channel densities for ca, kca, km, kv, na12, na16, and na
+    // are all 3.2094 times larger than the comments indicate
+    // see comment at top of this file 
+    /************************/
+
       gbar_na = gna12_dend    // 80
       gbar_kv = gkv_dend        // 20
       gbar_km  = gkm            // 0.3
@@ -196,6 +243,8 @@ proc  install_channels() {
   /* hill -> ais[0] -> ... -> ais[9] */
 
     // Nav 1.2   ( gna12_ais_max=3200, refer to "Nav% iseg.xls")
+    // actually, because of tadj, the value used to calculate
+    // the ionic conductance and current never was 3200--NTC
     hill.gbar_na12= gna12_ais_max     		*	1	*	0.8
     ais[0]. gbar_na12= gna12_ais_max      *	0.96	*	1
     ais[1]. gbar_na12= gna12_ais_max  		*	0.9	*	1
@@ -209,6 +258,8 @@ proc  install_channels() {
     ais[9]. gbar_na12= gna12_ais_max  		*	0	*	0.342857143
 
     // Nav 1.6  ( gna16_ais_max=3200, refer to "Nav% iseg.xls" )
+    // actually, because of tadj, the value used to calculate
+    // the ionic conductance and current never was 3200--NTC
     hill.gbar_na16 = gna16_ais_max	    *	0	*	0.8
     ais[0]. gbar_na16 = gna16_ais_max	*	0.04	*	1
     ais[1]. gbar_na16 = gna16_ais_max	*	0.1	*	1
@@ -222,6 +273,8 @@ proc  install_channels() {
     ais[9]. gbar_na16 = gna16_ais_max	*	1	*	0.342857143
 
     // Kv delayed rectifier channels  ( gkv_axon=1000 )
+    // actually, because of tadj, the value used to calculate
+    // the ionic conductance and current never was 1000--NTC
     hill.gbar_kv = gkv_axon	*	0.1
     ais[0]. gbar_kv = gkv_axon	*	0.2
     ais[1]. gbar_kv = gkv_axon	*	0.3
@@ -238,8 +291,11 @@ proc  install_channels() {
   /*  Nakeaxon */
     nakeaxon  {
       gbar_na16 = gna16_nakeaxon	    // 300, artificial (ought to be 1600)
+      // actually, because of tadj, the value used to calculate
+      // the ionic conductance and current never was 300--NTC
       gbar_na12 = 0
-      gbar_kv = 1500
+//      gbar_kv = 1500
+      gbar_kv = 1500*TADJ
     }
 
   /* ( Myelin[0] Node[0] ) -> ... -> ( Myelin[n_myelin] Node[n_myelin] )  */
