@@ -1,9 +1,7 @@
-
-:26 Ago 2002 Modification of original channel to allow variable time step and to correct an initialization error.
-:    Done by Michael Hines(michael.hines@yale.e) and Ruggero Scorcioni(rscorcio@gmu.edu) at EU Advance Course in Computational Neuroscience. Obidos, Portugal
-
-
-
+:26 Ago 2002 Modification of original channel to allow
+: variable time step and to correct an initialization error.
+:    Done by Michael Hines(michael.hines@yale.edu) and Ruggero Scorcioni(rscorcio@gmu.edu)
+: at EU Advance Course in Computational Neuroscience. Obidos, Portugal
 
 TITLE decay of internal calcium concentration
 :
@@ -33,8 +31,12 @@ TITLE decay of internal calcium concentration
 :
 : Written by Alain Destexhe, Salk Institute, Nov 12, 1992
 :
-
-INDEPENDENT {t FROM 0 TO 1 WITH 1 (ms)}
+: 20150524 NTC
+: Changed integration method from euler to derivimplicit
+: which is appropriate for simple ion accumulation mechanisms.
+: See
+: Integration methods for SOLVE statements
+: http://www.neuron.yale.edu/phpBB/viewtopic.php?f=28&t=592
 
 NEURON {
 	SUFFIX cad
@@ -52,9 +54,8 @@ UNITS {
 	FARADAY = (faraday) (coulomb)
 }
 
-
 PARAMETER {
-	depth	= .1	(um)		: depth of shell
+	depth	= 0.1	(um)		: depth of shell
 	taur	= 200	(ms)		: rate of calcium removal
 	cainf	= 100e-6(mM)
 	cai		(mM)
@@ -75,21 +76,15 @@ ASSIGNED {
 }
 
 BREAKPOINT {
-	SOLVE state METHOD euler
+	SOLVE state METHOD derivimplicit : not euler
+    : see http://www.neuron.yale.edu/phpBB/viewtopic.php?f=28&t=592
 }
 
 DERIVATIVE state {
-
 	drive_channel =  - (10000) * ica / (2 * FARADAY * depth)
 	if (drive_channel <= 0.) { drive_channel = 0. }	: cannot pump inward
 
 	ca' = drive_channel + (cainf-ca)/taur
 	cai = ca
 }
-
-
-
-
-
-
 
