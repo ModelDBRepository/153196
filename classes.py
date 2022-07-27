@@ -1,4 +1,6 @@
 from neuron import h
+h.load_file("stdrun.hoc")
+h.load_file("nrngui.hoc")
 from functions import *
 
 class Hu(object):
@@ -61,7 +63,7 @@ class Hu(object):
             try:
                 sec = h.node[h.axonnodes.__int__()-2]
             except AttributeError:
-                print "No node compartments!"
+                print("No node compartments!")
                 return 0
             apc = h.APCount(0.5, sec=sec)
             apc.thresh = 0 # mV
@@ -79,7 +81,7 @@ class Hu(object):
             self.apc_times.append(apc_time)
         else:
             if h.number_of_apc>2:
-                raise ValueError,"Too many apc counters; only 1 or 2 allowed"
+                raise ValueError("Too many apc counters; only 1 or 2 allowed")
     def intensity(self,sec):
         return sec.irradiance_chanrhod * sec.Tx_chanrhod
     def photon_flux(self, sec):
@@ -95,13 +97,13 @@ class Hu(object):
         """ func must act on a neuron section
         """
         from numpy import array
-        print "-"*100
+        print("-"*100)
         def append_data(sec, xyzdv, parent_id, connections,func,segfunc):
             """ Append data to xyzdv
             """
             if not segfunc: v=func(sec)
             n = int(h.n3d(sec=sec))
-            for ii in xrange(1, n):
+            for ii in range(1, n):
                 x = h.x3d(ii,sec=sec)
                 y = h.y3d(ii,sec=sec)
                 z = h.z3d(ii,sec=sec)
@@ -154,7 +156,7 @@ class Hu(object):
         tree = h.SectionList()
         tree.wholetree(sec=self.root)
         for sec in tree:
-            for ii in xrange(h.n3d(sec=sec).__int__()):
+            for ii in range(h.n3d(sec=sec).__int__()):
                 x=h.x3d(ii,sec=sec)
                 y=h.y3d(ii,sec=sec)
                 z=h.z3d(ii,sec=sec)
@@ -162,7 +164,7 @@ class Hu(object):
                 h.pt3dchange(ii,x+float(xyz[0]),y+float(xyz[1]),z+float(xyz[2]),d)
     def retrieve_coordinates(self, sec):
         xyzds = []
-        for ii in xrange(int(h.n3d(sec=sec))):
+        for ii in range(int(h.n3d(sec=sec))):
             xyzds.append([h.x3d(ii,sec=sec),
                           h.y3d(ii,sec=sec),
                           h.z3d(ii,sec=sec),
@@ -242,7 +244,7 @@ class Hu(object):
         edges = self.connections
         diam  = self.xyzdv[:,3]
         data  = self.xyzdv[:,4]
-        print "DATA RANGE: ",data.min(),data.max()
+        print("DATA RANGE: ",data.min(),data.max())
         # Define colors
         if not cmap:
             from matplotlib.cm import jet as cmap
@@ -327,7 +329,7 @@ class Hu(object):
         at the branch point
         """
         secs=[]
-        for ii in xrange(23,len(h.dend11)):
+        for ii in range(23,len(h.dend11)):
             secs.append(h.dend11[ii])
         return secs
     def get_apical_shaft(self):
@@ -409,7 +411,7 @@ class Hu(object):
         assert self.apc_times,'No action potential counters'
         for apct in self.apc_times:
             h.required_aps=max((h.required_aps,len(apct)))
-        print "** NO STIM APS: %d; Goal APS: %d **" % (h.required_aps,
+        print("** NO STIM APS: %d; Goal APS: %d **" % h.required_aps,
                                                        h.required_aps+additional_aps)
         h.required_aps += additional_aps # usually require one additional ap
         stimulator.amplitude=initial_amplitude
@@ -509,7 +511,7 @@ class Optrode(object):
                 yy = h.Vector(nn)
                 zz = h.Vector(nn)
                 length = h.Vector(nn)
-                for ii in xrange(nn):
+                for ii in range(nn):
                     xx.x[ii] = h.x3d(ii,sec=sec)
                     yy.x[ii] = h.y3d(ii,sec=sec)
                     zz.x[ii] = h.z3d(ii,sec=sec)
@@ -651,7 +653,7 @@ class Optrode(object):
         elif axis_defining_plane=='z':
             uvw = cross(xyz1, array([0,0,1]))
         else:
-            raise ValueError,'No such plane: %s' % axis_defining_plane
+            raise ValueError('No such plane: %s' % axis_defining_plane)
         uvw /= sqrt(sum(uvw**2))  # Normalize
 
         # Rotate the optrode around the vector
@@ -858,10 +860,10 @@ class Optrode(object):
                         optrode_output)
         elif isinstance(sec,nrn.Segment):
             seg = sec
-            print find_section_coordinates(seg.sec),seg.x
-            raise StandardError,"Not yet implemented"
+            print(find_section_coordinates(seg.sec),seg.x)
+            raise StandardError("Not yet implemented")
         else:
-            raise TypeError, "Wrong type: %s" % type(sec)
+            raise TypeError( "Wrong type: %s" % type(sec))
     def set_distance(self, sec, z_distance):
         """ Set optrode a certain distance in z-direction below the given section
         directed upwards """
@@ -910,13 +912,13 @@ class Optrode(object):
     def set_xyz(self,val):
         from numpy import array
         val = array(val).astype(float)
-        #print "SHAPE: ",val.shape
+        #print("SHAPE: ",val.shape)
         if val.shape == (3,2):
             self.set_position(val[0,:],val[1,:],val[2,:])
         elif val.shape == (2,3):
             self.set_position(val[:,0],val[:,1],val[:,2])
         else:
-            raise ValueError, "Trying to set xyz with inappropriate array %s" % str(val)
+            raise ValueError( "Trying to set xyz with inappropriate array %s" % str(val))
     def get_length(self):
         return self.sec.L
     def set_length(self,val):
@@ -1039,12 +1041,12 @@ class Sim(object):
         self.cell.set_tstop(h.tstop,self.stimulator,additional_aps)
         supra=upper_limit/0.9
         sub=0
-        if verbose:print "+ _SubT____, Amplitude, _SupraT__, _Error___ +"
+        if verbose:print("+ _SubT____, Amplitude, _SupraT__, _Error___ +")
         while (supra-sub)/self.stimulator.amplitude > error_threshold: # while error larger than threshold
             h.run()
             if self.cell.response:response='+'
             else:response='-'
-            if verbose:print "%s %0.3e, %0.3e, %0.3e, %0.3e : %s" % (response,
+            if verbose:print("%s %0.3e, %0.3e, %0.3e, %0.3e : %s" % response,
                                                                      sub,
                                                                      self.stimulator.amplitude,
                                                                      supra,
@@ -1056,7 +1058,7 @@ class Sim(object):
             else:
                 if self.stimulator.amplitude >= upper_limit:
                     # Probably not going to reach upper
-                    if verbose:print "** Upper threshold reached **"
+                    if verbose:print("** Upper threshold reached **")
                     self.stimulator.amplitude=0
                     h.run()
                     return float('nan')
@@ -1066,7 +1068,7 @@ class Sim(object):
         if not self.cell.response:
             self.stimulator.amplitude=supra
             h.run()
-        if verbose:print "** THRESHOLD: %g **" % self.stimulator.amplitude
+        if verbose:print("** THRESHOLD: %g **" % self.stimulator.amplitude)
         return self.stimulator.amplitude
 class Data(object):
     def __init__(self, filename, seperator=','):
@@ -1077,7 +1079,8 @@ class Data(object):
             line_type = self.data_or_header(data_list)
             if line_type =='data':
                 for ii,x in enumerate(data_list):
-                    if not data.has_key(ii):data[ii]=[]
+                    if not ii in data.keys():
+                        data[ii]=[]
                     try:
                         data[ii].append(float(x))
                     except:
@@ -1085,7 +1088,7 @@ class Data(object):
             elif line_type == 'header':
                 headers=data_list
         if not data:
-            raise ValueError,"Empty data file, or not seperated by %s" % seperator
+            raise ValueError("Empty data file, or not seperated by %s" % seperator)
         for k in data.keys():
             data[k] = array(data[k])
         self.filename=filename
