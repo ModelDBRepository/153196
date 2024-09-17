@@ -1,10 +1,14 @@
+import sys
+
 def find_section_coordinates(sec):
     """ Determine xyz coordinates for a given section """
     from numpy import array
     from neuron import h
+    h.load_file("stdrun.hoc")
+    h.load_file("nrngui.hoc")
     x=[];y=[];z=[];
     n=h.n3d(sec=sec).__int__()
-    for ii in xrange(n):
+    for ii in range(n):
         x.append(h.x3d(ii,sec=sec))
         y.append(h.y3d(ii,sec=sec))
         z.append(h.z3d(ii,sec=sec))
@@ -12,10 +16,12 @@ def find_section_coordinates(sec):
 def find_mean_section_coordinates(sec):
     """ Determine average coordinate for a given section """
     from neuron import h
+    h.load_file("stdrun.hoc")
+    h.load_file("nrngui.hoc")
     from numpy import array, mean
     x=[];y=[];z=[];
     n=h.n3d(sec=sec).__int__()
-    for ii in xrange(n):
+    for ii in range(n):
         x.append(h.x3d(ii,sec=sec))
         y.append(h.y3d(ii,sec=sec))
         z.append(h.z3d(ii,sec=sec))
@@ -108,7 +114,7 @@ def rotate_coordinates(X,Y,Z,v,axis='z'):
         v   = array(v)
         return xyz[:,0].reshape(X.shape),xyz[:,1].reshape(Y.shape),xyz[:,2].reshape(Z.shape),v
     else:
-        raise StandardError,'Not implemented'
+        sys.exit('Not implemented')
 def find_cylindrical_coords(X,Y,Z,v):
     " Align v with positive z axis "
     from numpy import sqrt

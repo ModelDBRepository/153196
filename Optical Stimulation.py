@@ -59,8 +59,20 @@
 
 from neuron import h
 h.load_file("stdrun.hoc")
-h.cvode_active(1)
+h.load_file("nrngui.hoc")
+h.cvode_active(0)
 
+def check():
+    mt = h.MechanismType(1)
+    mname  = h.ref('')
+    for i in range(mt.count()):
+        mt.select(i)
+        mt.selected(mname)
+        if mname[0] == 'ostim':
+            return "Good"
+    return "Nope"
+
+# print("1st: " + check())
 # <headingcell level=1>
 
 # Instantiate cell, stimulator and simulation classes
@@ -75,6 +87,7 @@ from classes import Hu, Optrode, Sim
 cell = Hu()
 optrode = Optrode(h.soma)
 sim = Sim(cell,optrode,output_filename='csv/distance_threshold.csv')
+# print("2: " + check())
 
 # <headingcell level=1>
 
@@ -104,17 +117,19 @@ sim = Sim(cell,optrode,output_filename='csv/distance_threshold.csv')
 
 # <codecell>
 
-%pylab inline
+# %pylab inline
 
 # <markdowncell>
 
 # Use matplotlib to display the distance versus threshold results.
 
 # <codecell>
+# print("3: " + check())
 
 from matplotlib import pyplot
 from classes import Data
 from functions import make_legend
+# print("4: " + check())
 
 # Simulation
 ds = Data('csv/distance_threshold.orig.csv')
@@ -126,7 +141,7 @@ styles = iter(['b--','g-.','r'])
 for f in [0.1,0.2,0.4]:
     ds.set_slice(ds.data['Fiber Optic Diameter (mm)']==f)
     pyplot.semilogy(ds.slice['Distance (um)'],ds.slice['Threshold (W/cm2)'],
-                    styles.next(),
+                    styles.__next__(),
                     label='%.1f' % f)
 pyplot.plot([1400], [38.0], '*', color='0.5',label='Aravanis (0.2)') # Aravanis data point
 pyplot.xlabel('Distance (um)')
@@ -142,6 +157,7 @@ pyplot.xlim([0,2000])
 # 2D visualization of the neuron geometry can be done in matplotlib using the cell's *plot* method. The *plot* method generates the cell's trajectory with a color overlay determined by an arbitrary input function that is run for each NEURON section. In this example, the input function returns the section's intracellular voltage.
 
 # <codecell>
+# print("5: " + check())
 
 from matplotlib import pyplot
 plot_func = lambda sec:sec.v
